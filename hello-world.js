@@ -77,10 +77,12 @@ const keys = {
     d: {
         pressed: false
     },
+    w: {
+        pressed: false
+    }
 }
 
-keys['a']['pressed'] = true
-console.log(keys)
+let lastKey = 'a'
 
 animate = () => {
 
@@ -90,11 +92,14 @@ animate = () => {
     player.update();
     enemy.update();
 
-    // if (keys.a.pressed){
-    //     player.velocity.x = -1
-    // } else if (key.d.pressed){
-    //     player.velocity.x = 1
-    // }
+    player.velocity.x = 0;
+    if (keys.a.pressed && lastKey === 'a'){
+        player.velocity.x = -1
+    } else if (keys.d.pressed && lastKey === 'd'){
+        player.velocity.x = 1
+    } else if (keys.w.pressed === 'w' && lastKey === 'w'){
+        player.velocity.y = -7
+    }
 }
 
 
@@ -104,16 +109,18 @@ window.addEventListener('keydown', (e) => {
 
     switch(e.key){
         case 'd':
-            player.velocity.x = 1;
-            console.log(player.velocity.x);
+            keys.d.pressed = true;
+            lastKey = e.key
             break;
         case 'a':
-            player.velocity.x = -1;
-            console.log(player.velocity.x);
+            keys.a.pressed = true;
+            lastKey = e.key
             break;
+        case 'w':
+            keys.w.pressed = true;
         case ' ':
-            console.log('hello')
             player.velocity.y = -7
+            break;
     }
 
 })
@@ -121,9 +128,14 @@ window.addEventListener('keydown', (e) => {
 window.addEventListener('keyup', (e) => {
     switch(e.key){
         case 'd':
-            player.velocity.x = 0;
+            keys.d.pressed = false;
+            break;
         case 'a':
-            player.velocity.x = 0;
+            keys.a.pressed = false;
+            break;
+        case 'w':
+        keys.w.pressed = false;
+            break;
     }
 })
 
