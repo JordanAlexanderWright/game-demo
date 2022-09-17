@@ -5,7 +5,7 @@ canvas.height = 576;
 
 cxt.fillRect(0, 0, canvas.width, canvas.height);
 
-    const gravity = .2;
+    const gravity = .7;
 
     const myEvents = {
         ArrowRight: 25,
@@ -16,18 +16,36 @@ cxt.fillRect(0, 0, canvas.width, canvas.height);
 
 class Sprite {
 
-    constructor({ position, color, velocity }){
+    constructor({ position, color, velocity, initialDirection }){
         this.position = position
         this.color = color
         this.velocity = velocity
         this.height = 150
-        this.direction = 'down'
+        this.direction = initialDirection
         this.lastKey
+        this.attackBox = {
+            position: this.position,
+            width: 100,
+            height: 50
+        }
     }
 
     draw = () =>{
         cxt.fillStyle = this.color;
         cxt.fillRect(this.position['x'], this.position['y'], 50, 150);
+
+        //attack box
+        cxt.fillStyle = 'pink'
+
+        let directionModifier = 0;
+        if (this.direction === 'left'){
+            directionModifier = -50;
+        } else if (this.direction === 'right'){
+             directionModifier = 0;
+        }
+
+        cxt.fillRect((this.attackBox.position.x + directionModifier), (this.attackBox.position.y + 50), this.attackBox.width, this.attackBox.height);
+
     }
 
     update(){
@@ -53,7 +71,8 @@ const player = new Sprite({
     velocity: {
         x: 0,
         y: 0
-    }
+    },
+    initialDirection: 'right'
 });
 
 const enemy = new Sprite({
@@ -65,7 +84,8 @@ const enemy = new Sprite({
     velocity: {
         x: 0,
         y: 0
-    }
+    },
+    initialDirection: 'left'
 });
 
 // player.draw();
@@ -103,26 +123,31 @@ animate = () => {
     //Player Movement
     player.velocity.x = 0;
     if (keys.a.pressed && player.lastKey === 'a'){
-        player.velocity.x = -1
+        player.velocity.x = -5
+        player.direction = 'left'
     } else if (keys.d.pressed && player.lastKey === 'd'){
-        player.velocity.x = 1
-    } else if (keys.w.pressed && player.lastKey === 'w'){
-        player.velocity.y = -7
+        player.velocity.x = 5
+        player.direction = 'right'
+    }
+
+    if (keys.w.pressed && player.velocity.y === 0){
+        player.velocity.y = -20
     }
 
     //Enemy Movement
     enemy.velocity.x = 0;
     if (keys.ArrowLeft.pressed && enemy.lastKey === 'ArrowLeft'){
-        enemy.velocity.x = -1
+        enemy.velocity.x = -5
+        enemy.direction = 'left'
     } else if (keys.ArrowRight.pressed && enemy.lastKey === 'ArrowRight'){
-        enemy.velocity.x = 1
+        enemy.velocity.x = 5
+        enemy.direction = 'right'
     }
 
-    if (keys.ArrowUp.pressed){
-        enemy.velocity.y = -7
+    if (keys.ArrowUp.pressed && enemy.velocity.y === 0) {
+        enemy.velocity.y = -20
     }
 }
-
 
 animate();
 
@@ -140,8 +165,9 @@ window.addEventListener('keydown', (e) => {
             break;
         case 'w':
             keys.w.pressed = true;
+            break;
         case ' ':
-            player.velocity.y = -7
+            player.velocity.y = -20
             break;
 
         //Enemy Keys
@@ -157,8 +183,6 @@ window.addEventListener('keydown', (e) => {
             keys.ArrowUp.pressed = true;
             break
     }
-
-
 })
 
 window.addEventListener('keyup', (e) => {
@@ -172,6 +196,7 @@ window.addEventListener('keyup', (e) => {
         case 'w':
             keys.w.pressed = false;
             break;
+
         case 'ArrowLeft':
             keys.ArrowLeft.pressed = false;
             break;
@@ -207,7 +232,6 @@ buttons.forEach( button => {
             case 'a':
                 keys.w.pressed = true;
             case ' ':
-                player.velocity.y = -7
                 break;
         }
     }
@@ -223,7 +247,6 @@ buttons.forEach( button => {
             case 'a':
                 keys.w.pressed = false;
             case ' ':
-                player.velocity.y = -7
                 break;
         }
     }
